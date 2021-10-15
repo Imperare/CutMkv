@@ -34,9 +34,10 @@ namespace CutMkv.ViewModel
         #region Propriétés public
 
         public ICommand OuvrirRepertoireCommand => new RelayCommand(x => OuvrirRepertoire(x.ToString()));
+        public ICommand DemarrerVideoCommand => new RelayCommand(x => DemarrerVideo(), x => !string.IsNullOrEmpty(EmplacementVideo));
         public ICommand SelectionVideoCommand => new RelayCommand(x => SelectionVideo());
         public ICommand SelectionSortieCommand => new RelayCommand(x => SelectionSortie());
-        public ICommand CouperMkvCommand => new RelayCommand(async x => await CouperMkv(), x => !string.IsNullOrEmpty(InstructionsCut));
+        public ICommand CouperMkvCommand => new RelayCommand(async x => await CouperMkv(), x => !string.IsNullOrEmpty(EmplacementVideo) && !string.IsNullOrEmpty(EmplacementSortie) && !string.IsNullOrEmpty(InstructionsCut));
 
         public string EmplacementVideo
         {
@@ -107,6 +108,11 @@ namespace CutMkv.ViewModel
             }
         }
 
+        private void DemarrerVideo()
+        {
+            Process.Start(EmplacementVideo);
+        }
+
         private void SelectionVideo()
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
@@ -172,12 +178,34 @@ namespace CutMkv.ViewModel
             {
                 string[] debutFin = timestamp.Split(' ');
                 string nomFichier = $"{EmplacementSortie}\\cut-{DateTime.Now.ToString("yyyyMMdd-HHmmss")}-{index++}.mkv";
-                string arguments = $@"-ss {debutFin[0]} -i {EmplacementVideo} -to {debutFin[1]} -c copy {nomFichier}";
+                string arguments = $"-ss {debutFin[0]} -i \"{EmplacementVideo}\" -to {debutFin[1]} -c copy \"{nomFichier}\"";
                 Log($"ffmpeg.exe {arguments}");
 
                 ProcessStartInfo startInfo = new ProcessStartInfo("ffmpeg.exe");
                 startInfo.Arguments = arguments;
                 Process.Start(startInfo);
+            }
+        }
+
+        public void ChargerFichierTxt(string fichier)
+        {
+            InstructionsCut = string.Empty;
+            string[] lignes = File.ReadAllLines(fichier);
+
+            for (int i = 0; i < lignes.Length; i++)
+            {
+                if (lignes[i].StartsWith("HOTKEY:Autre") || lignes[i].StartsWith("HOTKEY:Mort"))
+                {
+                    if (!string.IsNullOrEmpty(InstructionsCut))
+                        InstructionsCut += "\r\n";
+
+                    int heure = int.Parse(lignes[i + 1].Split(' ')[0].Split(':')[0]);
+                    int minute = int.Parse(lignes[i + 1].Split(' ')[0].Split(':')[1]);
+                    int seconde = int.Parse(lignes[i + 1].Split(' ')[0].Split(':')[2]);
+
+                    TimeSpan timeSpan = new TimeSpan(heure, minute, seconde);
+                    InstructionsCut += timeSpan.Add(-TimeSpan.FromSeconds(Math.Min(60, timeSpan.TotalSeconds))).ToString() + " 0:01:00";
+                }
             }
         }
 

@@ -7,7 +7,10 @@
         mc:Ignorable="d"
         Title="Cut MKV" 
         Height="650"
-        Width="850">
+        Width="1200"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        PreviewDragOver="Window_PreviewDragOver">
 
     <materialDesign:DialogHost Identifier="EcranPrincipalDialog">
         <Grid>
@@ -41,6 +44,8 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="20"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Command="{Binding SelectionVideoCommand}" Foreground="White" Margin="0 10 0 0" VerticalAlignment="Top" >
                             <materialDesign:PackIcon Kind="FileVideoOutline" Foreground="White" Height="24" Width="24" />
@@ -54,6 +59,10 @@
                                  materialDesign:HintAssist.Hint="Sélection de la vidéo" materialDesign:HintAssist.FloatingScale="1.2" materialDesign:HintAssist.FloatingOffset="0 -25"
                                  Text="{Binding EmplacementVideo}"
                                  Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                        
+                        <Button Grid.Column="4" Command="{Binding DemarrerVideoCommand}" Foreground="White" Margin="0 10 0 0" VerticalAlignment="Top" >
+                            <materialDesign:PackIcon Kind="Play" Foreground="White" Height="24" Width="24" />
+                        </Button>
                     </Grid>
 
                     <!--Dossier de sortie-->
@@ -79,8 +88,8 @@
 
                     <!--Timestamp-->
                     <TextBox Grid.Row="4" Text="{Binding InstructionsCut, UpdateSourceTrigger=PropertyChanged}" 
-                             Margin="95 15 20 20" AcceptsReturn="True"
-                             materialDesign:HintAssist.Hint="Timestamps" materialDesign:HintAssist.FloatingScale="1.2" materialDesign:HintAssist.FloatingOffset="0 -25" />
+                             Margin="95 15 20 20" AcceptsReturn="True" 
+                             materialDesign:HintAssist.Hint="Timestamps" materialDesign:HintAssist.FloatingScale="1.2" materialDesign:HintAssist.FloatingOffset="0 -25"/>
 
                     <!--Bouton-->
                     <Button Grid.Row="5" Foreground="White" HorizontalAlignment="Center" Margin="20 20 20 40" Command="{Binding CouperMkvCommand}">
